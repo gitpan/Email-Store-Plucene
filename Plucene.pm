@@ -2,7 +2,7 @@ package Email::Store::Plucene;
 use 5.006;
 use strict;
 use warnings;
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 use Plucene::Simple; # For now
 our $index_path ||= "./emailstore-index";
 use Module::Pluggable::Ordered search_path => ["Email::Store"];
@@ -40,13 +40,13 @@ package Email::Store::Mail;
 sub plucene_search {
     my ($class, $terms) = @_;
     my $plucy = Plucene::Simple->open($index_path);
-    return map { $class->retrieve($_) } $plucy->search($terms);
+    return $class->_ids_to_objects([map {{ message_id => $_ }} $plucy->search($terms)]);
 }
 
 sub plucene_search_during {
     my ($class, @terms) = @_;
     my $plucy = Plucene::Simple->open($index_path);
-    return map { $class->retrieve($_) } $plucy->search_during(@terms);
+    return $class->_ids_to_objects([map {{ message_id => $_ }} $plucy->search_during(@terms)]);
 }
 
 1;
